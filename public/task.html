@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作業管理</title>
+</head>
+<body>
+  <h1>作業管理</h1>
+  <input type="hidden" id="taskId" value="">
+  <button id="startButton">START</button>
+  <button id="stopButton">STOP</button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const taskId = window.location.pathname.split('/').pop();
+      document.getElementById('taskId').value = taskId;
+    });
+
+    document.getElementById('startButton').addEventListener('click', async () => {
+      const taskId = document.getElementById('taskId').value;
+      await fetch('/api/task-start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId })
+      });
+    });
+
+    document.getElementById('stopButton').addEventListener('click', async () => {
+      const taskId = document.getElementById('taskId').value;
+      await fetch('/api/task-stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId })
+      });
+    });
+  </script>
+</body>
+</html>
