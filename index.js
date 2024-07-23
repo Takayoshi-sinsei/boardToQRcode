@@ -28,11 +28,29 @@ app.use('/api/task-stop', taskStopRoutes);
 
 // フロントエンドルート
 app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+app.get('/generate', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'generate.html'));
 });
 
 app.get('/task/:taskId', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'task.html'));
+});
+
+// エラーハンドリングミドルウェア
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
 const PORT = process.env.PORT || 3000;

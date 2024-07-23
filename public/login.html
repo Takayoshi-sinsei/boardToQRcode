@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        input, button { width: 100%; margin: 10px 0; padding: 10px; }
+        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { opacity: 0.8; }
+        .link { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>ログイン</h1>
+    <form id="loginForm">
+        <input type="text" id="username" placeholder="ユーザー名" required>
+        <input type="password" id="password" placeholder="パスワード" required>
+        <button type="submit">ログイン</button>
+    </form>
+    <div class="link">
+        <a href="/register">初めての方、ユーザー名やパスワードを忘れた方はこちら</a>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    localStorage.setItem('token', data.token);
+                    window.location.href = '/generate'; // QRコード生成ページへリダイレクト
+                } else {
+                    alert('ログインに失敗しました');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('ログイン中にエラーが発生しました');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,58 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QRコード生成</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRコード生成</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        input, button { width: 100%; margin: 10px 0; padding: 10px; }
+        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { opacity: 0.8; }
+        #qrCode img { max-width: 100%; }
+    </style>
 </head>
 <body>
-  <h1>QRコード生成</h1>
-  <div id="loginForm">
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-  </div>
-  <form id="generateForm" style="display: none;">
-    <input type="text" id="taskId" placeholder="Enter Task ID" required>
-    <button type="submit">Generate QR Code</button>
-  </form>
-  <div id="qrCode"></div>
+    <h1>QRコード生成</h1>
+    <form id="generateForm">
+        <input type="text" id="taskId" placeholder="タスクID" required>
+        <button type="submit">QRコード生成</button>
+    </form>
+    <div id="qrCode"></div>
+    <button id="logoutButton">ログアウト</button>
 
-  <script>
-    let token;
+    <script>
+        // ページロード時に認証チェック
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+            }
+        });
 
-    async function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      if (data.token) {
-        token = data.token;
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('generateForm').style.display = 'block';
-      } else {
-        alert('Login failed');
-      }
-    }
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskId = document.getElementById('taskId').value;
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ taskId })
+                });
+                const data = await res.json();
+                document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
+            } catch (error) {
+                console.error('QR generation error:', error);
+                alert('QRコード生成中にエラーが発生しました');
+            }
+        });
 
-    document.getElementById('generateForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const taskId = document.getElementById('taskId').value;
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ taskId })
-      });
-      const data = await res.json();
-      document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
-    });
-  </script>
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        });
+    </script>
 </body>
 </html>
