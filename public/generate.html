@@ -7,19 +7,47 @@
 </head>
 <body>
   <h1>QRコード生成</h1>
-  <form id="generateForm">
+  <div id="loginForm">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+  <form id="generateForm" style="display: none;">
     <input type="text" id="taskId" placeholder="Enter Task ID" required>
     <button type="submit">Generate QR Code</button>
   </form>
   <div id="qrCode"></div>
 
   <script>
+    let token;
+
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (data.token) {
+        token = data.token;
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('generateForm').style.display = 'block';
+      } else {
+        alert('Login failed');
+      }
+    }
+
     document.getElementById('generateForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const taskId = document.getElementById('taskId').value;
       const res = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ taskId })
       });
       const data = await res.json();

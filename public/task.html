@@ -7,21 +7,52 @@
 </head>
 <body>
   <h1>作業管理</h1>
-  <input type="hidden" id="taskId" value="">
-  <button id="startButton">START</button>
-  <button id="stopButton">STOP</button>
+  <div id="loginForm">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+  <div id="taskControls" style="display: none;">
+    <input type="hidden" id="taskId" value="">
+    <button id="startButton">START</button>
+    <button id="stopButton">STOP</button>
+  </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    let token;
+
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (data.token) {
+        token = data.token;
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('taskControls').style.display = 'block';
+        setTaskId();
+      } else {
+        alert('Login failed');
+      }
+    }
+
+    function setTaskId() {
       const taskId = window.location.pathname.split('/').pop();
       document.getElementById('taskId').value = taskId;
-    });
+    }
 
     document.getElementById('startButton').addEventListener('click', async () => {
       const taskId = document.getElementById('taskId').value;
       await fetch('/api/task-start', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ taskId })
       });
     });
@@ -30,7 +61,10 @@
       const taskId = document.getElementById('taskId').value;
       await fetch('/api/task-stop', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ taskId })
       });
     });
