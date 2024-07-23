@@ -1,13 +1,17 @@
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
 const Task = require('./task-model');
 const { authenticateToken } = require('./auth');
-require('dotenv').config();
 
-module.exports = async (req, res) => {
-  authenticateToken(req, res, async () => {
+router.post('/', authenticateToken, async (req, res) => {
+  try {
     const { taskId } = req.body;
     const task = new Task({ taskId, status: 'START', timestamp: new Date() });
     await task.save();
     res.json({ message: 'Task started' });
-  });
-};
+  } catch (error) {
+    res.status(500).json({ message: 'Error starting task' });
+  }
+});
+
+module.exports = router;

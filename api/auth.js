@@ -1,3 +1,5 @@
+const express = require('express');
+const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
@@ -26,7 +28,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // ユーザー登録エンドポイント
-const register = async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -36,10 +38,10 @@ const register = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error registering user' });
   }
-};
+});
 
 // ログインエンドポイント
-const login = async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
@@ -52,6 +54,6 @@ const login = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error logging in' });
   }
-};
+});
 
-module.exports = { authenticateToken, register, login };
+module.exports = { router, authenticateToken };
