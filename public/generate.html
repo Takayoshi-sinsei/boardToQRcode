@@ -4,15 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QRコード生成</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
-        h1 { color: #333; }
-        form { margin-bottom: 20px; }
-        input, button { width: 100%; margin: 10px 0; padding: 10px; }
-        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-        button:hover { opacity: 0.8; }
-        #qrCode img { max-width: 100%; }
-    </style>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <h1>QRコード生成</h1>
@@ -21,10 +13,10 @@
         <button type="submit">QRコード生成</button>
     </form>
     <div id="qrCode"></div>
+    <div id="taskIdDisplay"></div>
     <button id="logoutButton">ログアウト</button>
 
     <script>
-        // ページロード時に認証チェック
         window.addEventListener('load', () => {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -47,6 +39,7 @@
                 });
                 const data = await res.json();
                 document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
+                document.getElementById('taskIdDisplay').textContent = `タスクID: ${taskId}`;
             } catch (error) {
                 console.error('QR generation error:', error);
                 alert('QRコード生成中にエラーが発生しました');

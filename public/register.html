@@ -4,15 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー登録</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
-        h1 { color: #333; }
-        form { margin-bottom: 20px; }
-        input, button { width: 100%; margin: 10px 0; padding: 10px; }
-        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-        button:hover { opacity: 0.8; }
-        .link { text-align: center; }
-    </style>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <h1>ユーザー登録</h1>
@@ -47,7 +39,7 @@
                 const data = await res.json();
                 alert(data.message);
                 if (res.ok) {
-                    window.location.href = '/login'; // 登録成功後、ログインページへリダイレクト
+                    window.location.href = '/login';
                 }
             } catch (error) {
                 console.error('Registration error:', error);

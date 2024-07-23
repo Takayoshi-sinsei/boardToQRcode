@@ -11,7 +11,7 @@ router.post('/', authenticateToken, async (req, res) => {
     res.json({ message: 'Task started' });
   } catch (error) {
     console.error('Error starting task:', error);
-    res.status(500).json({ message: 'Error starting task', error: error.message });
+    res.status(500).json({ message: 'Error starting task' });
   }
 });
 

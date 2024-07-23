@@ -11,7 +11,7 @@ router.post('/', authenticateToken, async (req, res) => {
     res.json({ qrCode });
   } catch (error) {
     console.error('Error generating QR code:', error);
-    res.status(500).json({ message: 'Error generating QR code', error: error.message });
+    res.status(500).json({ message: 'Error generating QR code' });
   }
 });
 

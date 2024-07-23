@@ -1,73 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>作業管理</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作業管理</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <h1>作業管理</h1>
-  <div id="loginForm">
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-  </div>
-  <div id="taskControls" style="display: none;">
-    <input type="hidden" id="taskId" value="">
-    <button id="startButton">START</button>
-    <button id="stopButton">STOP</button>
-  </div>
+    <h1>作業管理</h1>
+    <div id="loginForm">
+        <input type="text" id="username" placeholder="ユーザー名" required>
+        <input type="password" id="password" placeholder="パスワード" required>
+        <button onclick="login()">ログイン</button>
+    </div>
+    <div id="taskControls" class="hidden">
+        <div id="taskInfo"></div>
+        <button id="startButton">START</button>
+        <button id="stopButton">STOP</button>
+    </div>
 
-  <script>
-    let token;
+    <script>
+        let token;
+        const taskId = window.location.pathname.split('/').pop();
 
-    async function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      const data = await res.json();
-      if (data.token) {
-        token = data.token;
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('taskControls').style.display = 'block';
-        setTaskId();
-      } else {
-        alert('Login failed');
-      }
-    }
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    token = data.token;
+                    document.getElementById('loginForm').classList.add('hidden');
+                    document.getElementById('taskControls').classList.remove('hidden');
+                    document.getElementById('taskInfo').textContent = `タスクID: ${taskId}`;
+                } else {
+                    alert('ログインに失敗しました');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('ログイン中にエラーが発生しました');
+            }
+        }
 
-    function setTaskId() {
-      const taskId = window.location.pathname.split('/').pop();
-      document.getElementById('taskId').value = taskId;
-    }
+        document.getElementById('startButton').addEventListener('click', async () => {
+            await sendTaskAction('start');
+        });
 
-    document.getElementById('startButton').addEventListener('click', async () => {
-      const taskId = document.getElementById('taskId').value;
-      await fetch('/api/task-start', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ taskId })
-      });
-    });
+        document.getElementById('stopButton').addEventListener('click', async () => {
+            await sendTaskAction('stop');
+        });
 
-    document.getElementById('stopButton').addEventListener('click', async () => {
-      const taskId = document.getElementById('taskId').value;
-      await fetch('/api/task-stop', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ taskId })
-      });
-    });
-  </script>
+        async function sendTaskAction(action) {
+            try {
+                const res = await fetch(`/api/task-${action}`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ taskId })
+                });
+                const data = await res.json();
+                alert(data.message);
+            } catch (error) {
+                console.error(`Task ${action} error:`, error);
+                alert(`タスクの${action === 'start' ? '開始' : '停止'}中にエラーが発生しました`);
+            }
+        }
+    </script>
 </body>
 </html>

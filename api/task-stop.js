@@ -10,7 +10,7 @@ router.post('/', authenticateToken, async (req, res) => {
     res.json({ message: 'Task stopped' });
   } catch (error) {
     console.error('Error stopping task:', error);
-    res.status(500).json({ message: 'Error stopping task', error: error.message });
+    res.status(500).json({ message: 'Error stopping task' });
   }
 });
 

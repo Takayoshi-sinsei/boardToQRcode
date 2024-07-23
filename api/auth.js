@@ -6,14 +6,20 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // ユーザーモデルの定義
-const userSchema = new mongoose.Schema({ username: String, password: String });
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String
+});
+
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 // 認証ミドルウェア
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
+
   if (token == null) return res.sendStatus(401);
+
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
@@ -30,8 +36,7 @@ router.post('/register', async (req, res) => {
     await user.save();
     res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
-    console.error('Error registering user:', error);
-    res.status(500).json({ message: 'Error registering user', error: error.message });
+    res.status(500).json({ message: 'Error registering user' });
   }
 });
 
@@ -47,9 +52,8 @@ router.post('/login', async (req, res) => {
       res.status(400).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
-    console.error('Error logging in:', error);
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    res.status(500).json({ message: 'Error logging in' });
   }
 });
 
-module.exports = { router, authenticateToken };
+module.exports = { router, authenticateToken, User };
