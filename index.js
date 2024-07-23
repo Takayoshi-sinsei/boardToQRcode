@@ -8,7 +8,10 @@ const app = express();
 // MongoDB接続
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB', err));
+  .catch(err => {
+    console.error('Could not connect to MongoDB', err);
+    process.exit(1); // 接続失敗時にプロセスを終了
+  });
 
 // ミドルウェア
 app.use(express.json());

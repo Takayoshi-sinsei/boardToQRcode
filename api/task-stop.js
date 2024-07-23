@@ -9,7 +9,8 @@ router.post('/', authenticateToken, async (req, res) => {
     await Task.updateOne({ taskId }, { status: 'STOP', timestamp: new Date() });
     res.json({ message: 'Task stopped' });
   } catch (error) {
-    res.status(500).json({ message: 'Error stopping task' });
+    console.error('Error stopping task:', error);
+    res.status(500).json({ message: 'Error stopping task', error: error.message });
   }
 });
 

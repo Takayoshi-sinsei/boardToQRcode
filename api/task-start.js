@@ -10,7 +10,8 @@ router.post('/', authenticateToken, async (req, res) => {
     await task.save();
     res.json({ message: 'Task started' });
   } catch (error) {
-    res.status(500).json({ message: 'Error starting task' });
+    console.error('Error starting task:', error);
+    res.status(500).json({ message: 'Error starting task', error: error.message });
   }
 });
 
