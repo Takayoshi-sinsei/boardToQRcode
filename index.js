@@ -6,19 +6,16 @@ require('dotenv').config();
 const app = express();
 
 // MongoDB接続
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => {
-    console.error('Could not connect to MongoDB', err);
-    process.exit(1); // 接続失敗時にプロセスを終了
-  });
+  .catch(err => console.error('Could not connect to MongoDB', err));
 
 // ミドルウェア
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // APIルートのインポート
-const authRoutes = require('./api/auth');
+const authRoutes = require('./api/auth').router;
 const generateRoutes = require('./api/generate');
 const taskStartRoutes = require('./api/task-start');
 const taskStopRoutes = require('./api/task-stop');
