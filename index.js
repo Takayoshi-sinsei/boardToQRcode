@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 
 // MongoDB接続
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB', err));
 
@@ -19,12 +19,14 @@ const authRoutes = require('./api/auth').router;
 const generateRoutes = require('./api/generate');
 const taskStartRoutes = require('./api/task-start');
 const taskStopRoutes = require('./api/task-stop');
+const boardRoutes = require('./api/board');
 
 // APIルートの使用
 app.use('/api/auth', authRoutes);
 app.use('/api/generate', generateRoutes);
 app.use('/api/task-start', taskStartRoutes);
 app.use('/api/task-stop', taskStopRoutes);
+app.use('/api/board', boardRoutes);
 
 // フロントエンドルート
 app.get('/', (req, res) => {

@@ -25,7 +25,7 @@
             text-align: center;
             margin-top: 20px;
         }
-        #printTaskId {
+        #printProjectId, #printProjectName, #printCustomerName {
             font-size: 24px;
             margin-top: 20px;
         }
@@ -34,12 +34,14 @@
 <body>
     <h1>QRコード生成</h1>
     <form id="generateForm">
-        <input type="text" id="taskId" placeholder="タスクID" required>
+        <input type="text" id="projectId" placeholder="案件ID" required>
         <button type="submit">QRコード生成</button>
     </form>
     <div id="printArea">
         <div id="qrCode"></div>
-        <div id="printTaskId"></div>
+        <div id="printProjectId"></div>
+        <div id="printProjectName"></div>
+        <div id="printCustomerName"></div>
     </div>
     <button id="printButton" style="display: none;">印刷</button>
     <button id="logoutButton">ログアウト</button>
@@ -52,22 +54,53 @@
             }
         });
 
-        document.getElementById('generateForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const taskId = document.getElementById('taskId').value;
+        async function fetchProjectInfo(projectId) {
             const token = localStorage.getItem('token');
             try {
-                const res = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
+                const response = await fetch(`/api/board/${projectId}`, {
+                    headers: {
                         'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ taskId })
+                    }
                 });
-                const data = await res.json();
-                document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
-                document.getElementById('printTaskId').textContent = `タスクID: ${taskId}`;
+                if (!response.ok) {
+                    throw new Error('Project not found');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching project info:', error);
+                return null;
+            }
+        }
+
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const projectId = document.getElementById('projectId').value;
+            const token = localStorage.getItem('token');
+            try {
+                const [qrResponse, projectInfo] = await Promise.all([
+                    fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ taskId: projectId })
+                    }),
+                    fetchProjectInfo(projectId)
+                ]);
+
+                const qrData = await qrResponse.json();
+                document.getElementById('qrCode').innerHTML = `<img src="${qrData.qrCode}" alt="QR Code">`;
+                document.getElementById('printProjectId').textContent = `案件ID: ${projectId}`;
+                
+                if (projectInfo) {
+                    document.getElementById('printProjectName').textContent = `案件名: ${projectInfo.projectName}`;
+                    document.getElementById('printCustomerName').textContent = `顧客名: ${projectInfo.customerName}`;
+                } else {
+                    document.getElementById('printProjectName').textContent = '案件名: 不明';
+                    document.getElementById('printCustomerName').textContent = '顧客名: 不明';
+                }
+                
                 document.getElementById('printButton').style.display = 'block';
             } catch (error) {
                 console.error('QR generation error:', error);
