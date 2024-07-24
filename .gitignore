@@ -1,0 +1,24 @@
+# 依存関係
+/node_modules
+
+# 環境設定ファイル
+.env
+
+# ログ
+*.log
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# エディタ設定
+.vscode/
+.idea/
+
+# ビルド成果物
+/dist
+/build
+
+# その他
+*.tmp
+*.bak
