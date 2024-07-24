@@ -29,7 +29,7 @@ async function fetchProjectInfoFromBoardAPI(projectId) {
         const response = await axios.get(`${BOARD_API_URL}/projects/${projectId}`, {
             headers: {
                 'Authorization': `Bearer ${BOARD_API_TOKEN}`,
-                'X-API-KEY': BOARD_API_KEY,
+                'x-api-key': BOARD_API_KEY,
                 'Content-Type': 'application/json'
             }
         });
