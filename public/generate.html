@@ -63,12 +63,17 @@
                     }
                 });
                 if (!response.ok) {
-                    throw new Error('Project not found');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return await response.json();
+                const data = await response.json();
+                return {
+                    projectId: data.id,
+                    projectName: data.name,
+                    customerName: data.client.name
+                };
             } catch (error) {
                 console.error('Error fetching project info:', error);
-                return null;
+                return { error: error.message };
             }
         }
 
@@ -89,22 +94,28 @@
                     fetchProjectInfo(projectId)
                 ]);
 
+                if (!qrResponse.ok) {
+                    throw new Error(`QR generation failed: ${qrResponse.statusText}`);
+                }
+
                 const qrData = await qrResponse.json();
                 document.getElementById('qrCode').innerHTML = `<img src="${qrData.qrCode}" alt="QR Code">`;
-                document.getElementById('printProjectId').textContent = `案件ID: ${projectId}`;
                 
-                if (projectInfo) {
+                if (projectInfo && !projectInfo.error) {
+                    document.getElementById('printProjectId').textContent = `案件ID: ${projectInfo.projectId}`;
                     document.getElementById('printProjectName').textContent = `案件名: ${projectInfo.projectName}`;
                     document.getElementById('printCustomerName').textContent = `顧客名: ${projectInfo.customerName}`;
                 } else {
-                    document.getElementById('printProjectName').textContent = '案件名: 不明';
-                    document.getElementById('printCustomerName').textContent = '顧客名: 不明';
+                    document.getElementById('printProjectId').textContent = `案件ID: ${projectId}`;
+                    document.getElementById('printProjectName').textContent = '案件名: 取得できませんでした';
+                    document.getElementById('printCustomerName').textContent = '顧客名: 取得できませんでした';
+                    console.warn('Project info could not be fetched:', projectInfo ? projectInfo.error : 'Unknown error');
                 }
                 
                 document.getElementById('printButton').style.display = 'block';
             } catch (error) {
-                console.error('QR generation error:', error);
-                alert('QRコード生成中にエラーが発生しました');
+                console.error('Error:', error);
+                alert(`エラーが発生しました: ${error.message}`);
             }
         });
 
