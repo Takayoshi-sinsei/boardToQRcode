@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QRコード生成</title>
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printArea, #printArea * {
+                visibility: visible;
+            }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+        #printArea {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #printTaskId {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>QRコード生成</h1>
@@ -12,8 +37,11 @@
         <input type="text" id="taskId" placeholder="タスクID" required>
         <button type="submit">QRコード生成</button>
     </form>
-    <div id="qrCode"></div>
-    <div id="taskIdDisplay"></div>
+    <div id="printArea">
+        <div id="qrCode"></div>
+        <div id="printTaskId"></div>
+    </div>
+    <button id="printButton" style="display: none;">印刷</button>
     <button id="logoutButton">ログアウト</button>
 
     <script>
@@ -39,11 +67,16 @@
                 });
                 const data = await res.json();
                 document.getElementById('qrCode').innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
-                document.getElementById('taskIdDisplay').textContent = `タスクID: ${taskId}`;
+                document.getElementById('printTaskId').textContent = `タスクID: ${taskId}`;
+                document.getElementById('printButton').style.display = 'block';
             } catch (error) {
                 console.error('QR generation error:', error);
                 alert('QRコード生成中にエラーが発生しました');
             }
+        });
+
+        document.getElementById('printButton').addEventListener('click', () => {
+            window.print();
         });
 
         document.getElementById('logoutButton').addEventListener('click', () => {
