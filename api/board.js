@@ -41,12 +41,13 @@ async function fetchProjectInfoFromBoardAPI(projectNo) {
 
         console.log('API Response:', response.data);
 
-        if (response.data.projects && response.data.projects.length > 0) {
-            const project = response.data.projects[0];
+        if (response.data && response.data.length > 0) {
+            const project = response.data[0];
             return {
                 projectName: project.name,
                 clientName: project.client.name,
-                contactName: `${project.contact.last_name} ${project.contact.first_name}`
+                contactName: project.contact ? `${project.contact.last_name} ${project.contact.first_name}` : 
+                             project.user ? `${project.user.last_name} ${project.user.first_name}` : '担当者不明'
             };
         } else {
             console.log('No project found for the given project number');
