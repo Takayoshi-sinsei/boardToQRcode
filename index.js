@@ -1,12 +1,3 @@
-const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET', 'BOARD_API_URL', 'BOARD_API_KEY', 'BOARD_API_TOKEN'];
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    console.error(`Error: Environment variable ${envVar} is not set.`);
-    process.exit(1);
-  }
-}
-
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');

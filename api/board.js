@@ -9,9 +9,9 @@ const BOARD_API_KEY = process.env.BOARD_API_KEY;
 const BOARD_API_TOKEN = process.env.BOARD_API_TOKEN;
 
 router.get('/:projectNo', authenticateToken, async (req, res) => {
-    console.log(`Received request for project number: ${req.params.projectNo}`);
     try {
         const { projectNo } = req.params;
+        console.log(`Received request for project number: ${projectNo}`);
         const projectInfo = await fetchProjectInfoFromBoardAPI(projectNo);
         
         if (projectInfo) {
@@ -27,6 +27,7 @@ router.get('/:projectNo', authenticateToken, async (req, res) => {
 
 async function fetchProjectInfoFromBoardAPI(projectNo) {
     try {
+        console.log(`Fetching info for project number: ${projectNo}`);
         const response = await axios.get(`${BOARD_API_URL}/projects`, {
             params: {
                 project_no_eq: projectNo
@@ -38,6 +39,8 @@ async function fetchProjectInfoFromBoardAPI(projectNo) {
             }
         });
 
+        console.log('API Response:', response.data);
+
         if (response.data.projects && response.data.projects.length > 0) {
             const project = response.data.projects[0];
             return {
@@ -46,10 +49,14 @@ async function fetchProjectInfoFromBoardAPI(projectNo) {
                 contactName: `${project.contact.last_name} ${project.contact.first_name}`
             };
         } else {
+            console.log('No project found for the given project number');
             return null;
         }
     } catch (error) {
         console.error('Error calling Board API:', error);
+        if (error.response) {
+            console.error('API Response:', error.response.data);
+        }
         throw error;
     }
 }
