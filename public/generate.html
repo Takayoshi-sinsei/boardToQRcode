@@ -1,38 +1,125 @@
-document.getElementById('generateForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const projectNo = document.getElementById('projectNo').value;
-    const token = localStorage.getItem('token');
-    try {
-        const [qrResponse, projectInfo] = await Promise.all([
-            fetch('/api/generate', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ taskId: projectNo })
-            }),
-            fetchProjectInfo(projectNo)
-        ]);
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRコード生成</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printArea, #printArea * {
+                visibility: visible;
+            }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+        #printArea {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #printProjectNo, #printProjectName, #printClientName, #printContactName {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QRコード生成</h1>
+    <form id="generateForm">
+        <input type="text" id="projectNo" placeholder="案件No" required>
+        <button type="submit">QRコード生成</button>
+    </form>
+    <div id="printArea">
+        <div id="qrCode"></div>
+        <div id="printProjectNo"></div>
+        <div id="printProjectName"></div>
+        <div id="printClientName"></div>
+        <div id="printContactName"></div>
+    </div>
+    <button id="printButton" style="display: none;">印刷</button>
+    <button id="logoutButton">ログアウト</button>
 
-        if (!qrResponse.ok) {
-            throw new Error(`QR生成エラー: ${qrResponse.status}`);
+    <script>
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+            }
+        });
+
+        async function fetchProjectInfo(projectNo) {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`/api/board/${projectNo}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching project info:', error);
+                throw error;
+            }
         }
 
-        const qrData = await qrResponse.json();
-        document.getElementById('qrCode').innerHTML = `<img src="${qrData.qrCode}" alt="QR Code">`;
-        
-        if (projectInfo) {
-            document.getElementById('printProjectNo').textContent = `案件No: ${projectNo}`;
-            document.getElementById('printProjectName').textContent = `案件名: ${projectInfo.projectName}`;
-            document.getElementById('printClientName').textContent = `クライアント名: ${projectInfo.clientName}`;
-            document.getElementById('printContactName').textContent = `担当者名: ${projectInfo.contactName}`;
-            document.getElementById('printButton').style.display = 'block';
-        } else {
-            throw new Error('プロジェクト情報を取得できませんでした');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert(`エラーが発生しました: ${error.message}`);
-    }
-});
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const projectNo = document.getElementById('projectNo').value;
+            const token = localStorage.getItem('token');
+            try {
+                const [qrResponse, projectInfo] = await Promise.all([
+                    fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ taskId: projectNo })
+                    }),
+                    fetchProjectInfo(projectNo)
+                ]);
+
+                if (!qrResponse.ok) {
+                    throw new Error(`QR生成エラー: ${qrResponse.status}`);
+                }
+
+                const qrData = await qrResponse.json();
+                document.getElementById('qrCode').innerHTML = `<img src="${qrData.qrCode}" alt="QR Code">`;
+
+                if (projectInfo) {
+                    document.getElementById('printProjectNo').textContent = `案件No: ${projectNo}`;
+                    document.getElementById('printProjectName').textContent = `案件名: ${projectInfo.projectName}`;
+                    document.getElementById('printClientName').textContent = `クライアント名: ${projectInfo.clientName}`;
+                    document.getElementById('printContactName').textContent = `担当者名: ${projectInfo.contactName}`;
+                    document.getElementById('printButton').style.display = 'block';
+                } else {
+                    throw new Error('プロジェクト情報を取得できませんでした');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`エラーが発生しました: ${error.message}`);
+            }
+        });
+
+        document.getElementById('printButton').addEventListener('click', () => {
+            window.print();
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        });
+    </script>
+</body>
+</html>
