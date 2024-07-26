@@ -27,22 +27,22 @@ router.get('/:projectNo', authenticateToken, async (req, res) => {
 async function fetchProjectInfoFromBoardAPI(projectNo) {
     try {
         const response = await axios.get(`${BOARD_API_URL}/projects`, {
+            params: {
+                project_no_eq: projectNo
+            },
             headers: {
                 'Authorization': `Bearer ${BOARD_API_TOKEN}`,
                 'x-api-key': BOARD_API_KEY,
                 'Content-Type': 'application/json'
-            },
-            params: {
-                project_no_eq: projectNo
             }
         });
 
-        if (response.data.data && response.data.data.length > 0) {
-            const projectData = response.data.data[0];
+        if (response.data.projects && response.data.projects.length > 0) {
+            const project = response.data.projects[0];
             return {
-                projectName: projectData.attributes.name,
-                customerName: projectData.attributes.customer.name,
-                projectNo: projectData.attributes.project_no
+                projectName: project.name,
+                clientName: project.client.name,
+                contactName: `${project.contact.last_name} ${project.contact.first_name}`
             };
         } else {
             return null;

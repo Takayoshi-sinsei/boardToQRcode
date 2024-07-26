@@ -25,9 +25,9 @@
             text-align: center;
             margin-top: 20px;
         }
-        #printProjectNo, #printProjectName, #printCustomerName {
-            font-size: 24px;
-            margin-top: 20px;
+        #printProjectNo, #printProjectName, #printClientName, #printContactName {
+            font-size: 18px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -41,7 +41,8 @@
         <div id="qrCode"></div>
         <div id="printProjectNo"></div>
         <div id="printProjectName"></div>
-        <div id="printCustomerName"></div>
+        <div id="printClientName"></div>
+        <div id="printContactName"></div>
     </div>
     <button id="printButton" style="display: none;">印刷</button>
     <button id="logoutButton">ログアウト</button>
@@ -95,7 +96,8 @@
                 if (projectInfo) {
                     document.getElementById('printProjectNo').textContent = `案件No: ${projectNo}`;
                     document.getElementById('printProjectName').textContent = `案件名: ${projectInfo.projectName}`;
-                    document.getElementById('printCustomerName').textContent = `顧客名: ${projectInfo.customerName}`;
+                    document.getElementById('printClientName').textContent = `クライアント名: ${projectInfo.clientName}`;
+                    document.getElementById('printContactName').textContent = `担当者名: ${projectInfo.contactName}`;
                 } else {
                     throw new Error('Project info could not be fetched');
                 }
