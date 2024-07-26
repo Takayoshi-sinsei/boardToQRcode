@@ -9,6 +9,7 @@ const BOARD_API_KEY = process.env.BOARD_API_KEY;
 const BOARD_API_TOKEN = process.env.BOARD_API_TOKEN;
 
 router.get('/:projectNo', authenticateToken, async (req, res) => {
+    console.log(`Received request for project number: ${req.params.projectNo}`);
     try {
         const { projectNo } = req.params;
         const projectInfo = await fetchProjectInfoFromBoardAPI(projectNo);
